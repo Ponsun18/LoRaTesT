@@ -53,7 +53,6 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
         Delete = findViewById(R.id.DeletBut);
         back = findViewById(R.id.QRBut);
 
-
         Add.setVisibility(View.GONE);
         Delete.setVisibility(View.INVISIBLE);
       //  back.setVisibility(View.INVISIBLE);
