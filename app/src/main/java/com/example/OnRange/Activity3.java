@@ -166,8 +166,8 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                             "1.0.3",
                             "0",
                             "MANUAL",
-                            Lat,
-                            Long,
+                            "0",
+                            "0",
                             "0"
                     );
 
@@ -181,7 +181,7 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                             if (response.isSuccessful()) {                                                    // ändra allt till <String> så funkar delete, o sök
                                 // textView.setText("SUCCESS ADD - " + response.code());
                                 //   textView.setText(response.body().toString());
-                                information.setText(response.body().toString());
+                                information.setText(response.body().toString() + Long + Lat);
                                 Toast.makeText(Activity3.this, "ADDED Successfully", Toast.LENGTH_SHORT).show();
                                 Add.setVisibility(View.GONE);
 
@@ -191,7 +191,7 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                                 //   textView.setText(JsonTest.toString());
                                 //    textView.setText("Authorization:Basic" + text);
                                 Toast.makeText(Activity3.this, "Not Successfull", Toast.LENGTH_SHORT).show();
-                                information.setText(response.body().toString());
+                                information.setText(response.body().toString() + Long + Lat);
 
                             }
                         }
