@@ -93,6 +93,7 @@ public class Activity2 extends AppCompatActivity implements View.OnClickListener
                 AppKey = arrSplit[1];
                 AppEUI = arrSplit[2];
                 openActivity3();
+                finish();
             }
 
 

@@ -1,14 +1,32 @@
 package com.example.OnRange;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,6 +41,9 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
     private TextView information;
     String finalCredBase6 = "";
     private Button Add,Delete,back;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    String Long = "";
+    String Lat = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +88,10 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
       //  String Auth = "Basic T25ib2FyZENCOmFscGVybmE2Nzk5ZW5lcmdp";
 
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(
+                Activity3.this
+        );
+
         Call<String> call = userClient.getUser(credBase64,DevEUI);
 
          finalCredBase6 = credBase64;
@@ -74,22 +99,26 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                if(response.isSuccessful()){
-               //     Add.setVisibility(View.VISIBLE);
-
-                  //  information.setText(response.body().toString());
-
-                      Delete.setVisibility(View.VISIBLE);
-                   //     openActivity4();
+                if(response.code() == 401){
+                   // information.setText("Fel inlogg - reboot och skriv in igen");
+                    Toast.makeText(Activity3.this, "Check Username and Password",Toast.LENGTH_SHORT).show();
+                    finish();
 
                 }
-                if(!response.isSuccessful()){
-                  //      openActivity5();
+                if(response.isSuccessful()){
 
+                  //  information.setText(" del " + response.code());     // fick 202 med riktiga inlogg
 
-                   // information.setText(response.code());
+                    information.setText("The sensor: " +DevEUI + " is in the " +"\n" + Tenant + "\n"+ "Do you want to delete it? Or Re scan?");
+
+                      Delete.setVisibility(View.VISIBLE);
+
+                }
+                if(!response.isSuccessful() && response.code() != 401){
+
+                    information.setText("The sensor: " +DevEUI + " is not in the " +"\n" + Tenant +"\n" +"Do you want to add it? Or Re scan?");
+                  //  information.setText(" ad " + response.code());  // fick 404 med riktiga inlogg          401 med fel
                     Add.setVisibility(View.VISIBLE);
-               //     Delete.setVisibility(View.VISIBLE);
 
                 }
             }
@@ -105,69 +134,78 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onClick(View v) {
             if(v.getId() == R.id.AddBut){
-                String url =  "https://impact.idc.nokia.com/m2m/endpoints/"; // http://impact.idc.nokia.com:30050/m2m/endpoints https://impact.idc.nokia.com/m2m/endpoints/
+                if(ActivityCompat.checkSelfPermission( Activity3.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission( Activity3.this
+                        , Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    getCurrentLocation();
 
-                Retrofit.Builder builder = new Retrofit.Builder()
-                        .baseUrl(url)
-                        .addConverterFactory(ScalarsConverterFactory.create())
-                        .addConverterFactory(GsonConverterFactory.create())
-                        //           .client(OkHttpClientBuilder.build());
-                        ;
+                    String url = "https://impact.idc.nokia.com/m2m/endpoints/"; // http://impact.idc.nokia.com:30050/m2m/endpoints https://impact.idc.nokia.com/m2m/endpoints/
 
-                Retrofit retrofit = builder.build();
-                UserClient userClient = retrofit.create(UserClient.class);
+                    Retrofit.Builder builder = new Retrofit.Builder()
+                            .baseUrl(url)
+                            .addConverterFactory(ScalarsConverterFactory.create())
+                            .addConverterFactory(GsonConverterFactory.create())
+                            //           .client(OkHttpClientBuilder.build());
+                            ;
+
+                    Retrofit retrofit = builder.build();
+                    UserClient userClient = retrofit.create(UserClient.class);
 
 
-                AdditionalParams AdditionalParams1 = new AdditionalParams(
-                        "SWEDENALN",
-                        DevEUI,
-                        AppKey,
-                        AppEUI,
-                        "OTAA",
-                        "A",
-                        "EU868",
-                        "true",
-                        "STATIC",
-                        "A",
-                        "1.0.3",
-                        "0",
-                        "MANUAL",
-                        "0",
-                        "0",
-                        "0"
-                );
+                    AdditionalParams AdditionalParams1 = new AdditionalParams(
+                            "SWEDENALN",
+                            DevEUI,
+                            AppKey,
+                            AppEUI,
+                            "OTAA",
+                            "A",
+                            "EU868",
+                            "true",
+                            "STATIC",
+                            "A",
+                            "1.0.3",
+                            "0",
+                            "MANUAL",
+                            Lat,
+                            Long,
+                            "0"
+                    );
 
-                //  String text = "Basic T25ib2FyZENCOmFscGVybmE2Nzk5ZW5lcmdp";
-                User user = new User(AdditionalParams1, "",Tenant,"", DevEUI, "HTTP");
-                Call<User> call = userClient.addUser(finalCredBase6,user);
+                    //  String text = "Basic T25ib2FyZENCOmFscGVybmE2Nzk5ZW5lcmdp";
+                    User user = new User(AdditionalParams1, "", Tenant, "", DevEUI, "HTTP");
+                    Call<User> call = userClient.addUser(finalCredBase6, user);
 
-                call.enqueue(new Callback<User>() {
-                    @Override
-                    public void onResponse(Call<User> call, Response<User> response) {
-                        if(response.isSuccessful()){                                                    // ändra allt till <String> så funkar delete, o sök
-                            // textView.setText("SUCCESS ADD - " + response.code());
-                            //   textView.setText(response.body().toString());
-                              information.setText(response.body().toString());
-                            Toast.makeText(Activity3.this, "ADDED Successfully",Toast.LENGTH_SHORT).show();
-                            Add.setVisibility(View.GONE);
+                    call.enqueue(new Callback<User>() {
+                        @Override
+                        public void onResponse(Call<User> call, Response<User> response) {
+                            if (response.isSuccessful()) {                                                    // ändra allt till <String> så funkar delete, o sök
+                                // textView.setText("SUCCESS ADD - " + response.code());
+                                //   textView.setText(response.body().toString());
+                                information.setText(response.body().toString());
+                                Toast.makeText(Activity3.this, "ADDED Successfully", Toast.LENGTH_SHORT).show();
+                                Add.setVisibility(View.GONE);
 
+                            }
+                            if (!response.isSuccessful()) {
+                                //  textView.setText("NOT SUCCESS BUT NOT FAIL ADD - " + response.code());
+                                //   textView.setText(JsonTest.toString());
+                                //    textView.setText("Authorization:Basic" + text);
+                                Toast.makeText(Activity3.this, "Not Successfull", Toast.LENGTH_SHORT).show();
+                                information.setText(response.body().toString());
+
+                            }
                         }
-                        if(!response.isSuccessful()){
-                            //  textView.setText("NOT SUCCESS BUT NOT FAIL ADD - " + response.code());
-                            //   textView.setText(JsonTest.toString());
-                            //    textView.setText("Authorization:Basic" + text);
-                            Toast.makeText(Activity3.this, "Not Successfull",Toast.LENGTH_SHORT).show();
-                            information.setText(response.body().toString());
 
+                        @Override
+                        public void onFailure(Call<User> User, Throwable t) {
+                            information.setText("Fail: " + t.getMessage());
                         }
-                    }
-                    @Override
-                    public void onFailure(Call<User> User, Throwable t) {
-                          information.setText("Fail: " +t.getMessage());
-                    }
-                });
+                    });
 
-
+                }
+                else{
+                    ActivityCompat.requestPermissions(Activity3.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
+                }
             //    Toast.makeText(Activity3.this, "ADD",Toast.LENGTH_SHORT).show();
             }               // funkar
             if(v.getId() == R.id.DeletBut){
@@ -214,6 +252,60 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                 Toast.makeText(Activity3.this, "BACK",Toast.LENGTH_SHORT).show();
                 finish();
            }
+    }
+    @SuppressLint("MissingPermission")
+    private void getCurrentLocation() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    Location location = task.getResult();
+
+                    if(location != null){
+                        Lat = String.valueOf(location.getLatitude());
+                        Long = String.valueOf(location.getLongitude());
+
+
+                    //    tvlat.setText(String.valueOf(location.getLatitude()));
+                    //    tvlong.setText(String.valueOf(location.getLongitude()));
+                    }
+                    else{
+                        LocationRequest locationRequest = new LocationRequest().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                                .setInterval(1000)// 10000
+                                .setFastestInterval(100) // 1000
+                                .setNumUpdates(1);
+                        LocationCallback locationCallback = new LocationCallback(){
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                Location location1 = locationResult.getLastLocation();
+
+                                Lat = String.valueOf(location1.getLatitude());
+                                Long = String.valueOf(location1.getLongitude());
+
+                             //   tvlat.setText(String.valueOf(location1.getLatitude()));
+                             //   tvlong.setText(String.valueOf(location1.getLongitude()));
+
+                            }
+                        };
+                        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+                    }
+                }
+            });
+        }else{
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 100 && grantResults.length > 0 && (grantResults[0] + grantResults[1] == PackageManager.PERMISSION_GRANTED)){
+            getCurrentLocation();
+        }else{
+            Toast.makeText(getApplicationContext(), "permission nono", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 

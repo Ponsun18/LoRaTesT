@@ -3,7 +3,8 @@
     package="com.example.OnRange">
 
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-feature android:name="android.hardware.camera2" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -16,8 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity5"></activity>
-        <activity android:name=".Activity4" />
+
         <activity android:name=".Activity3" />
         <activity android:name=".Activity2" />
         <activity android:name=".MainActivity">
