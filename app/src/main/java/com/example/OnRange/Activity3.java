@@ -37,6 +37,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class Activity3 extends AppCompatActivity implements View.OnClickListener {
 
+    
     private String Username,Password,Tenant,DevEUI,AppKey,AppEUI;
     private TextView information;
     String finalCredBase6 = "";
