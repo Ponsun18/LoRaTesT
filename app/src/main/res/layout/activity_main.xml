@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
 
-
+    android:background="#eaf2d1"
     tools:context=".MainActivity">
 
     <EditText
@@ -44,19 +44,8 @@
         android:text="Login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/Password"
-
         app:layout_constraintTop_toBottomOf="@+id/Welcome" />
 
-    <TextView
-        android:id="@+id/textName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:layout_marginStart="82dp"
-        android:layout_marginBottom="35dp"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/UserName"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/Welcome"
@@ -65,7 +54,7 @@
         android:layout_marginStart="62dp"
         android:layout_marginTop="125dp"
         android:layout_marginBottom="396dp"
-        android:textSize="16dp"
+        android:textSize="26dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/Login"
         app:layout_constraintStart_toStartOf="parent"

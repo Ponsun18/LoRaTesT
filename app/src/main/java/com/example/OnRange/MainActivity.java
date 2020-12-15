@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         PasswordE = findViewById(R.id.Password);
         LoginE = findViewById(R.id.Login);
 
-        InformationOmInlogg = findViewById(R.id.textName); // For Rewriting the username and password
+     //   InformationOmInlogg = findViewById(R.id.textName); // For Rewriting the username and password
 
         LoginE.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -95,7 +95,7 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
         Call<String> call = userClient.getUser(credBase64,DevEUI);
 
          finalCredBase6 = credBase64;
-
+        getCurrentLocation();
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -109,14 +109,14 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
 
                   //  information.setText(" del " + response.code());     // fick 202 med riktiga inlogg
 
-                    information.setText("The sensor: " +DevEUI + " is in the " +"\n" + Tenant + "\n"+ "Do you want to delete it? Or Re scan?");
+                    information.setText("The sensor: " +DevEUI + " is in the " +"\n" + Tenant + "\n"+ "Do you want to delete it? Or Re scan?" + "\n" + "Long " + Long + "Lat " + Lat);
 
                       Delete.setVisibility(View.VISIBLE);
 
                 }
                 if(!response.isSuccessful() && response.code() != 401){
 
-                    information.setText("The sensor: " +DevEUI + " is not in the " +"\n" + Tenant +"\n" +"Do you want to add it? Or Re scan?");
+                    information.setText("The sensor: " +DevEUI + " is not in the " +"\n" + Tenant +"\n" +"Do you want to add it? Or Re scan?" + "\n" + "Long " + Long + "Lat " + Lat);
                   //  information.setText(" ad " + response.code());  // fick 404 med riktiga inlogg          401 med fel
                     Add.setVisibility(View.VISIBLE);
 
@@ -137,7 +137,7 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                 if(ActivityCompat.checkSelfPermission( Activity3.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission( Activity3.this
                         , Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    getCurrentLocation();
+
 
                     String url = "https://impact.idc.nokia.com/m2m/endpoints/"; // http://impact.idc.nokia.com:30050/m2m/endpoints https://impact.idc.nokia.com/m2m/endpoints/
 
@@ -166,8 +166,8 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                             "1.0.3",
                             "0",
                             "MANUAL",
-                            "0",
-                            "0",
+                            "12.1234",
+                            "56.1234",
                             "0"
                     );
 
@@ -181,7 +181,8 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                             if (response.isSuccessful()) {                                                    // ändra allt till <String> så funkar delete, o sök
                                 // textView.setText("SUCCESS ADD - " + response.code());
                                 //   textView.setText(response.body().toString());
-                                information.setText(response.body().toString() + Long + Lat);
+                             //   information.setText(response.body().toString() + Long + Lat);
+                                information.setText("Device added successfully");
                                 Toast.makeText(Activity3.this, "ADDED Successfully", Toast.LENGTH_SHORT).show();
                                 Add.setVisibility(View.GONE);
 
@@ -191,7 +192,8 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
                                 //   textView.setText(JsonTest.toString());
                                 //    textView.setText("Authorization:Basic" + text);
                                 Toast.makeText(Activity3.this, "Not Successfull", Toast.LENGTH_SHORT).show();
-                                information.setText(response.body().toString() + Long + Lat);
+                               // information.setText(response.body().toString() + Long + Lat);
+                                information.setText("Device was not successfully added");
 
                             }
                         }
